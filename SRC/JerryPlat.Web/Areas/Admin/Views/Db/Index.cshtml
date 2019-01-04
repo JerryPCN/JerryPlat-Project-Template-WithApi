@@ -1,0 +1,69 @@
+﻿<div class="my-main-body-button">
+    <span class="my-main-body-title">
+        <i class="el-icon-view"></i>
+        数据库管理
+    </span>
+    <el-button v-if="existButton('Backup')" type="primary" @@click="handleBackup()"><i class="el-icon-plus"></i> {{getButtonText('Backup')}}</el-button>
+</div>
+<el-table :data="List.Data" border stripe
+          header-row-class-name="my-main-body-table-header"
+          @@selection-change="handleSelectionChange"
+          @@sort-change="function(sort){handleSortChange(sort,'List');}"
+          style="width: 100%">
+    <el-table-column label="备份数据库文件" prop="BackupPath" sortable="custom">
+        <template slot-scope="scope">
+            <div>{{scope.row.BackupPath}}</div>
+        </template>
+    </el-table-column>
+    <el-table-column label="备份时间" prop="CreateTime" sortable="custom">
+        <template slot-scope="scope">
+            {{getDate(scope.row.CreateTime)}}
+        </template>
+    </el-table-column>
+    <el-table-column label="还原数据库次数" prop="BackupPath" sortable="custom">
+        <template slot-scope="scope">
+            <div>{{scope.row.RestoreCount}}</div>
+        </template>
+    </el-table-column>
+    <el-table-column label="最后还原时间" prop="CreateTime" sortable="custom">
+        <template slot-scope="scope">
+            {{getDate(scope.row.RestoreTime)}}
+        </template>
+    </el-table-column>
+    <el-table-column label="操作" width="180" align="center" v-if="existButton('Restore')">
+        <template slot-scope="scope">
+            <el-button v-if="existButton('Restore')" size="mini" type="success" @@click="handleRestore(scope.row.Id)"><i class="el-icon-edit"></i> {{getButtonText('Restore')}}</el-button>
+        </template>
+    </el-table-column>
+</el-table>
+
+@Html.Partial("_pagination", "List")
+
+@section js{
+    <script>
+    function getVueOptions() {
+        return helper.getPageVueOptions("Db", null, {
+            methods: {
+                handleBackup: function () {
+                    var _this = this;
+                    helper.confirm("确定要备份数据库吗？", function () {
+                        helper.apiPost(_this.getUrl("/Db/Backup"), null, function (data) {
+                            helper.alert("恭喜您，备份数据库成功。");
+                            _this.getDataList();
+                        });
+                    });
+                },
+                handleRestore: function (id) {
+                    var _this = this;
+                    helper.confirm("确定要还原数据库吗？", function () {
+                        helper.apiPost(_this.getUrl("/Db/Restore/" + id), null, function (data) {
+                            helper.alert("恭喜您，还原数据库成功。");
+                            _this.getDataList();
+                        });
+                    });
+                }
+            }
+        });
+    }
+    </script>
+}

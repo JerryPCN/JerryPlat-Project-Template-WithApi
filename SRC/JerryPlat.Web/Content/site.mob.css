@@ -1,0 +1,25 @@
+﻿[v-cloak] {
+    display: none;
+}
+
+*{
+    box-sizing: border-box;
+    font-family: "Arial","Microsoft YaHei","黑体","宋体",sans-serif;
+}
+
+html,body,.my-app,.my-full-container{
+    padding:0px;
+    margin:0px;
+}
+
+.my-full-container{
+    position:relative;
+}
+.my-full-container::after{
+    content:"";
+}
+
+.my-full-bg{
+    width:100%;
+    display:block;
+}

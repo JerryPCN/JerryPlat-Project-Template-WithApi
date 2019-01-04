@@ -1,0 +1,112 @@
+﻿<div class="my-main-body-button">
+    <span class="my-main-body-title">
+        <i class="el-icon-view"></i>
+        系统设置
+    </span>
+</div>
+
+<el-tabs v-model="Tab" type="border-card">
+    <el-tab-pane label="基础设置" name="n1">
+        <el-form ref="commonForm" :model="Model" status-icon :show-message="false"
+                 :label-width="Common.FormLabelWidth"
+                 :label-suffix="Common.FormLabelSuffix">
+            <el-form-item label="启用微信">
+                <el-switch prop="IsUseWechatLogin" v-model="Model.IsUseWechatLogin"></el-switch>
+            </el-form-item>
+            <el-form-item label="允许跨域域名（;隔开）">
+                <el-input prop="AllowOriginSites" type="textarea" :rows="2"
+                           v-model="Model.AllowOriginSites" required placeholder="允许跨域域名（;隔开）"></el-input>
+            </el-form-item>
+            <el-form-item label="分享标题">
+                <el-input prop="ShareTitle" v-model="Model.ShareTitle" required placeholder="分享标题"></el-input>
+            </el-form-item>
+            <el-form-item label="分享内容">
+                <el-input prop="ShareContent" v-model="Model.ShareContent" required placeholder="分享内容"></el-input>
+            </el-form-item>
+            <el-form-item v-if="existButton('Edit')">
+                <el-button type="primary" @@click="submitForm('commonForm', save)">{{getButtonText('Edit')}}</el-button>
+            </el-form-item>
+        </el-form>
+    </el-tab-pane>
+
+    <el-tab-pane label="系统管理" name="n2" 
+                 v-if="existButton('Clear') | existButton('Restart')">
+        <el-form ref="smsForm" :model="Model" status-icon :show-message="false"
+                 :label-width="Common.FormLabelWidth"
+                 :label-suffix="Common.FormLabelSuffix">
+            <el-form-item label="清空数据" v-if="existButton('Clear')">
+                <el-button type="danger" @@click="clearData()">{{getButtonText('Clear')}}</el-button>
+            </el-form-item>
+            <el-form-item label="重启站点" v-if="existButton('Restart')">
+                <el-button type="primary" @@click="restartSite()">{{getButtonText('Restart')}}</el-button>
+            </el-form-item>
+        </el-form>
+    </el-tab-pane>
+
+    <el-tab-pane label="数据库备份设置" name="n3">
+        <el-form ref="smsForm" :model="Model" status-icon :show-message="false"
+                 :label-width="Common.FormLabelWidth"
+                 :label-suffix="Common.FormLabelSuffix">
+            <el-form-item label="Master数据库连接字符串">
+                <el-input prop="MasterDbConnStr" type="textarea" :rows="2"
+                          v-model="Model.MasterDbConnStr" required placeholder="Master数据库连接字符串"></el-input>
+            </el-form-item>
+            <el-form-item label="备份源数据库名字">
+                <el-input prop="DbName" v-model="Model.DbName" required placeholder="备份源数据库名字"></el-input>
+            </el-form-item>
+            <el-form-item label="备份数据库名字">
+                <el-input prop="BackUpDbName" v-model="Model.BackUpDbName" required placeholder="备份数据库名字"></el-input>
+            </el-form-item>
+            <el-form-item v-if="existButton('Edit')">
+                <el-button type="primary" @@click="submitForm('commonForm', save)">{{getButtonText('Edit')}}</el-button>
+            </el-form-item>
+        </el-form>
+    </el-tab-pane>
+</el-tabs>
+
+@section js{
+<script>
+    function getVueOptions() {
+        return helper.getVueModelOptions({
+            data: {
+                Model: @(Html.Raw(TypeHelper.ToJson<SystemConfigModel>())),
+                Tab: "n1"
+            },
+            mounted: function () {
+                var _this = this;
+                helper.apiPost(_this.getUrl("/SystemConfig/Get"), null, function (data) {
+                    _this.Model = data;
+                });
+            },
+            methods: {
+                clearData: function () {
+                    var _this = this;
+                    helper.confirm("确定要清空站点数据吗？", function () {
+                        helper.apiPost(_this.getUrl("/System/ClearData"), null, function (data) {
+                            helper.post("/Admin/System/Restart", null, function (data) {
+                                helper.alert("清空站点数据成功，即将重新登陆。", function () {
+                                    helper.redirect("/Admin");
+                                });
+                            });
+                        });
+                    });
+                },
+                restartSite: function(){
+                    helper.confirm("确定要重启站点吗？", function () {
+                        helper.post("/Admin/System/Restart", null, function (data) {
+                            helper.alert("重启站点成功，即将重新登陆。", function () {
+                                helper.redirect("/Admin");
+                            });
+                        });
+                    });
+                },
+                save: function () {
+                    helper.apiPost(this.getUrl("/SystemConfig/Save"), this.Model, function (data) {
+                        helper.alert("保存成功。");
+                    });
+                }
+            }
+        });
+    }
+</script>
+}

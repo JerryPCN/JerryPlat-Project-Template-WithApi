@@ -1,0 +1,33 @@
+﻿@{ 
+    bool bIsRestart = (bool)ViewBag.IsRestart;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Error</title>
+</head>
+<body>
+    <hgroup>
+        <h1>Error.</h1>
+        <h2>@ViewBag.Error</h2>
+    </hgroup>
+    @if (bIsRestart)
+    {
+    <h3>站点即将在<span id="second"></span>秒中后跳转到登陆页面。</h3>
+    <a href="/" target="_self">手动跳转</a>
+    <script>
+        var second = 6;
+        (function jumpToHome() {
+            second = second - 1;
+            document.getElementById("second").innerText = second;
+            if (second == 0) {
+                location.href = "/";
+                return;
+            }
+            setTimeout(jumpToHome, 1000);
+        })();
+    </script>
+    }
+</body>
+</html>

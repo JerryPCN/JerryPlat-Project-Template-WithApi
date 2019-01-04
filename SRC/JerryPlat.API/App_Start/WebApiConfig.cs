@@ -1,0 +1,18 @@
+﻿using JerryPlat.API.App_Start.Configs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
+
+namespace JerryPlat.API
+{
+    public static class WebApiConfig
+    {
+        public static void Register(HttpConfiguration config)
+        {
+            ApiFilterConfig.Register(config);
+            ApiProviderConfig.Register(config);
+            ApiRouteConfig.Register(config);
+        }
+    }
+}
